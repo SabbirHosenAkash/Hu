@@ -24,7 +24,7 @@ function typeEffect() {
     setTimeout(typeEffect, typeSpeed);
 }
 
-// --- 2. Silent Form Submission (No Redirect) ---
+// --- 2. Silent Form Submission (Success Message Without Refresh) ---
 const contactForm = document.getElementById('contact-form');
 if (contactForm) {
     contactForm.addEventListener('submit', function(e) {
@@ -32,23 +32,25 @@ if (contactForm) {
         const status = document.getElementById('form-status');
         const btn = contactForm.querySelector('.send-btn');
         
-        status.innerHTML = "Sending...";
+        status.innerHTML = "Sending... <i class='fas fa-spinner fa-spin'></i>";
         btn.disabled = true;
 
+        const formData = new FormData(contactForm);
         fetch(contactForm.action, {
             method: 'POST',
-            body: new FormData(contactForm),
+            body: formData,
             headers: { 'Accept': 'application/json' }
         }).then(response => {
             if (response.ok) {
-                status.innerHTML = "✅ Message Sent Successfully!";
+                status.innerHTML = "✅ Message Sent Successfully! I'll contact you soon.";
                 status.style.color = "var(--primary)";
                 contactForm.reset();
             } else {
-                status.innerHTML = "❌ Error. Try again.";
+                status.innerHTML = "❌ Error occurred. Please try again.";
+                status.style.color = "red";
             }
         }).catch(error => {
-            status.innerHTML = "❌ Something went wrong.";
+            status.innerHTML = "❌ Connection error.";
         }).finally(() => {
             btn.disabled = false;
         });
@@ -57,27 +59,38 @@ if (contactForm) {
 
 // --- 3. Initializations ---
 document.addEventListener("DOMContentLoaded", () => {
+    // Typing Start
     setTimeout(typeEffect, 1000);
+
+    // AOS Animation
     AOS.init({ duration: 1000, once: true });
 
+    // Swiper Project Slider
     new Swiper('.project-slider', {
-        loop: true, autoplay: { delay: 3000 },
+        loop: true, autoplay: { delay: 3500 },
         pagination: { el: '.swiper-pagination', clickable: true },
-        effect: 'fade'
+        effect: 'coverflow',
+        grabCursor: true,
+        centeredSlides: true,
+        slidesPerView: 'auto',
+        coverflowEffect: { rotate: 30, stretch: 0, depth: 100, modifier: 1, slideShadows: true }
     });
 
-    // Particles Config
-    particlesJS("particles-js", {
-        "particles": {
-            "number": { "value": 60 },
-            "color": { "value": "#00ff88" },
-            "size": { "value": 2 },
-            "line_linked": { "enable": true, "distance": 150, "color": "#00ff88", "opacity": 0.1 }
-        },
-        "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } } }
-    });
+    // Particles JS
+    if (typeof particlesJS !== 'undefined') {
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 70 },
+                "color": { "value": "#00ff88" },
+                "size": { "value": 2 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#00ff88", "opacity": 0.1 },
+                "move": { "enable": true, "speed": 2 }
+            }
+        });
+    }
 
-    // Skills Animation
+    // Skills Scroll Animation
+    const skillSection = document.getElementById('skills');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -87,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }, { threshold: 0.5 });
-    observer.observe(document.getElementById('skills'));
+    if (skillSection) observer.observe(skillSection);
 });
 
 // Mobile Menu Toggle
